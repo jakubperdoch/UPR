@@ -21,6 +21,21 @@ void set_random_color()
         set_white_color();
 }
 
+void return_to_position(int steps,bool left)
+{
+    for (int i = 0; i < steps; i++)
+    {
+        if (left)
+        {
+            move_left();
+        }
+        else
+        {
+            move_right();
+        }
+    }
+}
+
 void draw_horizontal_line(int length,bool dashed)
 {
     for (int i = 0; i < length; i++)
@@ -30,9 +45,7 @@ void draw_horizontal_line(int length,bool dashed)
         {
             move_right();
             if (dashed)
-            {
                 move_right();
-            }
         }
     }
 }
@@ -57,36 +70,48 @@ void draw_stairs(int count)
 
     for (int i = 0; i < count; i++)
     {
+        printf("%d", i);
         draw_horizontal_line(6,false);
-        draw_vertical_line(3,false);
+
+        if (i + 1 < count)
+        {
+            draw_vertical_line(2,false);
+        }
     }
 }
 
 void draw_flower(int width, int height)
 {
-    set_blue_color();
-    const int middle = width / 2;
-    const int stem = height - width;
+    int middle = width / 2;
+    int stem = height - width;
 
-    //KVET
-    for (int i = 0; i < width; i++)
+    //FLOWER
+    for (int i = 0; i < width; ++i)
     {
+        set_blue_color();
         if (i == 0 || i == width - 1)
         {
-            draw_horizontal_line(width,false);
+            move_right();
+            draw_horizontal_line(width - 2,false);
+            return_to_position(width - 2,true);
         }
         else
         {
+            //BLUE BORDERS
             draw_horizontal_line(width,false);
-            set_yellow_color();
-            draw_horizontal_line(width,false);
+            return_to_position(width - 1,true);
+
+            // WHITE FILL
+            move_right();
+            set_white_color();
+            draw_horizontal_line(middle + 1,false);
+            return_to_position(middle + 1,true);
         }
 
-        set_blue_color();
         move_down();
     }
 
-    //STONKA
+    //STEM
     for (int j = 0; j < middle; j++)
     {
         move_right();
@@ -103,13 +128,19 @@ void draw_flower(int width, int height)
 
 void draw_garden(int columns, int rows)
 {
-    move_to(2, 0);
-    draw_flower(5, 6);
+    for (int i = 0; i < rows; i++)
+    {
+        int column = 1;
+        int line = (i * 8) + 2;
 
-    move_to(2, 30);
-    draw_flower(5, 6);
+        for (int j = 0; j < columns; j++)
+        {
+            move_to(line, column);
+            draw_flower(5, 6);
+            column += 8;
+        }
+    }
 }
-
 
 int main()
 {
@@ -117,10 +148,8 @@ int main()
     move_to(0, 0);
     srand((int)time(NULL));
 
-
     int userInput = 0;
     scanf("%d", &userInput);
-
 
     switch (userInput)
     {
@@ -135,7 +164,7 @@ int main()
         draw_flower(5, 6);
         break;
     case 4:
-        draw_garden(5, 6);
+        draw_garden(5, 2);
         break;
     default:
         break;
