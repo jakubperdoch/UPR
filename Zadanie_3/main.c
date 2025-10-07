@@ -143,6 +143,165 @@ void draw_garden(int columns, int rows)
     }
 }
 
+void gun_frame_1()
+{
+    set_black_color();
+
+    //SIGHT
+    move_right();
+    move_right();
+    draw_pixel();
+
+    for (int j = 0; j < 18; j++)
+    {
+        move_right();
+    }
+
+    draw_pixel();
+    move_down();
+    return_to_position(20,true);
+
+    //BODY
+    for (int i = 0; i < 2; i++)
+    {
+        draw_horizontal_line(23,false);
+        return_to_position(22,true);
+        move_down();
+    }
+
+    move_right();
+    move_right();
+    draw_horizontal_line(19,false);
+    return_to_position(16,true);
+
+
+    //HANDLE
+    move_down();
+    for (int k = 0; k < 7; k++)
+    {
+        move_right();
+    }
+    draw_pixel();
+
+    for (int j = 0; j < 2; j++)
+    {
+        move_down();
+        move_left();
+        draw_pixel();
+    }
+
+    move_left();
+    draw_pixel();
+    return_to_position(3,true);
+
+    for (int j = 0; j < 3; ++j)
+    {
+        move_up();
+    }
+
+    for (int j = 0; j < 4; j++)
+    {
+        move_down();
+        draw_pixel();
+        move_right();
+        draw_pixel();
+        move_right();
+        draw_pixel();
+        return_to_position(2,true);
+    }
+
+    move_up();
+    move_left();
+    draw_pixel();
+    move_down();
+    draw_pixel();
+}
+
+
+void gun_frame_2()
+{
+    reset_color();
+    draw_horizontal_line(22,false);
+
+    return_to_position(20,true);
+    set_black_color();
+    draw_pixel();
+
+    for (int j = 0; j < 14; j++)
+    {
+        move_right();
+    }
+
+    draw_pixel();
+}
+
+void gun_frame_3()
+{
+    set_red_color();
+
+    move_to(4, 35);
+    draw_horizontal_line(1,false);
+    move_to(5, 33);
+    draw_horizontal_line(4,false);
+    move_to(6, 33);
+    draw_horizontal_line(7,false);
+    move_to(7, 33);
+    draw_horizontal_line(3,false);
+
+    set_yellow_color();
+    move_to(4, 33);
+    draw_horizontal_line(2,false);
+    move_to(3, 35);
+    draw_horizontal_line(1,false);
+
+    move_to(4, 36);
+    draw_horizontal_line(1,false);
+    move_to(5, 37);
+    draw_horizontal_line(3,false);
+
+    move_to(8, 33);
+    draw_horizontal_line(3,false);
+    move_to(7, 36);
+    draw_horizontal_line(4,false);
+
+    move_to(6, 39);
+    draw_horizontal_line(2,false);
+}
+
+void draw_bullet(int x, int y)
+{
+    move_to(y, x);
+
+    set_white_color();
+    draw_vertical_line(2,false);
+    move_right();
+    move_up();
+    set_yellow_color();
+    draw_vertical_line(2,false);
+}
+
+
+void draw_gun()
+{
+    move_to(4, 10);
+    gun_frame_1();
+    animate();
+    move_to(4, 10);
+    gun_frame_2();
+    animate();
+    gun_frame_3();
+
+    for (int i = 0; i < 15; ++i)
+    {
+        draw_bullet(34 + i * 3, 5);
+        animate_ms(200);
+        clear_screen();
+        move_to(4, 10);
+        gun_frame_1();
+    }
+}
+
+
 int main()
 {
     clear_screen();
@@ -157,21 +316,40 @@ int main()
     case 1:
         set_random_color();
         draw_horizontal_line(5,true);
+        move_to(5, 1);
+
+        set_random_color();
+        draw_horizontal_line(3,true);
+        move_to(4, 10);
+
+        set_random_color();
+        draw_horizontal_line(10,true);
         break;
     case 2:
         draw_stairs(5);
+        move_to(1, 10);
+        draw_stairs(7);
+        move_to(1, 25);
+        draw_stairs(2);
         break;
     case 3:
         draw_flower(9, 12);
+        move_to(1, 12);
+        draw_flower(3, 4);
+        move_to(4, 20);
+        draw_flower(5, 7);
         break;
     case 4:
         draw_garden(5, 2);
         break;
+    case 5:
+        draw_gun();
+        break;
+
     default:
         break;
     }
 
     end_drawing();
-
     return 0;
 }
