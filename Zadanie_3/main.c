@@ -70,7 +70,6 @@ void draw_stairs(int count)
 
     for (int i = 0; i < count; i++)
     {
-        printf("%d", i);
         draw_horizontal_line(6,false);
 
         if (i + 1 < count)
@@ -83,6 +82,7 @@ void draw_stairs(int count)
 void draw_flower(int width, int height)
 {
     int middle = width / 2;
+    int fill = width - 2;
     int stem = height - width;
 
     //FLOWER
@@ -91,6 +91,7 @@ void draw_flower(int width, int height)
         set_blue_color();
         if (i == 0 || i == width - 1)
         {
+            //TOP & BOTTOM
             move_right();
             draw_horizontal_line(width - 2,false);
             return_to_position(width - 2,true);
@@ -104,15 +105,15 @@ void draw_flower(int width, int height)
             // WHITE FILL
             move_right();
             set_white_color();
-            draw_horizontal_line(middle + 1,false);
-            return_to_position(middle + 1,true);
+            draw_horizontal_line(fill,false);
+            return_to_position(fill,true);
         }
 
         move_down();
     }
 
     //STEM
-    for (int j = 0; j < middle; j++)
+    for (int j = 0; j < width / 2; j++)
     {
         move_right();
     }
@@ -136,7 +137,7 @@ void draw_garden(int columns, int rows)
         for (int j = 0; j < columns; j++)
         {
             move_to(line, column);
-            draw_flower(5, 6);
+            draw_flower(3, 5);
             column += 8;
         }
     }
@@ -161,7 +162,7 @@ int main()
         draw_stairs(5);
         break;
     case 3:
-        draw_flower(5, 6);
+        draw_flower(9, 12);
         break;
     case 4:
         draw_garden(5, 2);
