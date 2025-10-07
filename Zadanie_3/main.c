@@ -81,7 +81,6 @@ void draw_stairs(int count)
 
 void draw_flower(int width, int height)
 {
-    int middle = width / 2;
     int fill = width - 2;
     int stem = height - width;
 
@@ -306,14 +305,15 @@ int main()
 {
     clear_screen();
     move_to(0, 0);
-    srand((int)time(NULL));
+    unsigned int interval = (unsigned int)time(NULL);
+    srand(interval);
 
     int userInput = 0;
     scanf("%d", &userInput);
 
     switch (userInput)
     {
-    case 1:
+    case 0:
         set_random_color();
         draw_horizontal_line(5,true);
         move_to(5, 1);
@@ -325,24 +325,24 @@ int main()
         set_random_color();
         draw_horizontal_line(10,true);
         break;
-    case 2:
+    case 1:
         draw_stairs(5);
-        move_to(1, 10);
+        move_to(1, 15);
         draw_stairs(7);
-        move_to(1, 25);
+        move_to(1, 32);
         draw_stairs(2);
         break;
-    case 3:
+    case 2:
         draw_flower(9, 12);
         move_to(1, 12);
         draw_flower(3, 4);
         move_to(4, 20);
         draw_flower(5, 7);
         break;
-    case 4:
+    case 3:
         draw_garden(5, 2);
         break;
-    case 5:
+    case 4:
         draw_gun();
         break;
 
