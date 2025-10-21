@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/jakubperdoch/Developer/UPR/Zadanie_4/main'
+relocations:     []
+...
