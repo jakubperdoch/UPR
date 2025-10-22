@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 struct Turtle
 {
@@ -90,11 +91,9 @@ int main(void)
         array[i] = '.';
     }
 
-    array_print(array, num_turtles, turtles, rows, cols);
 
     char command;
 
-    //TODO:
     while (true)
     {
         scanf("%c", &command);
@@ -102,30 +101,26 @@ int main(void)
         if (command == 'f' && num_turtles < 3)
         {
             add_turtle(&turtles, &num_turtles);
-            array_print(array, num_turtles, turtles, rows, cols);
         }
         else if (command == 'm')
         {
             move_turtle(turtles, num_turtles, rows, cols);
-            array_print(array, num_turtles, turtles, rows, cols);
         }
         else if (command == 'r' || command == 'l')
         {
             turn_turtle(turtles, num_turtles, command);
-            array_print(array, num_turtles, turtles, rows, cols);
         }
         else if (command == 'o')
         {
             draw_turtle(turtles, array, num_turtles, cols);
-            array_print(array, num_turtles, turtles, rows, cols);
         }
         else if (command == 'x')
         {
+            array_print(array, num_turtles, turtles, rows, cols);
             break;
         }
     }
 
-    array_print(array, num_turtles, turtles, rows, cols);
 
     free(array);
     free(turtles);
