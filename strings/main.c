@@ -41,8 +41,15 @@ int main(void)
         }
 
         char* substr = strtok(buff, ";");
-        printf("substr = %s\n", substr);
         printf("|%s| \n", buff);
+
+
+        while (*substr)
+        {
+            printf("substr = %s\n", substr);
+            // Pre ziskanie druheho substringu je potrebne dat NULL
+            substr = strtok(NULL, ";");
+        }
     }
 
     // printf("strcmp= %d", strcmp(buff, s2));

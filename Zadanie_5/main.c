@@ -15,17 +15,16 @@ void array_print(char* array, int num_turtles, struct Turtle* turtles, const int
     {
         for (int column = 0; column < columns; column++)
         {
-            //TODO:
-            char ch = array[row * columns + column];
+            char symbol = array[row * columns + column];
             for (int index = 0; index < num_turtles; index++)
             {
                 if (turtles[index].row == row && turtles[index].column == column)
                 {
-                    ch = 'z';
+                    symbol = 'z';
                     break;
                 }
             }
-            printf("%c", ch);
+            printf("%c", symbol);
         }
         printf("\n");
     }
@@ -33,20 +32,17 @@ void array_print(char* array, int num_turtles, struct Turtle* turtles, const int
 
 void add_turtle(struct Turtle** current_turtles, int* num_turtles)
 {
-    //TODO:
-    int new_count = *num_turtles + 1;
-    struct Turtle* tmp = realloc(*current_turtles, new_count * sizeof(struct Turtle));
-    if (!tmp) return;
-    tmp[new_count - 1] = (struct Turtle){0, 0, 1};
-    *current_turtles = tmp;
-    *num_turtles = new_count;
+    int temporary_count = *num_turtles + 1;
+    struct Turtle* temporary_turtles = realloc(*current_turtles, temporary_count * sizeof(struct Turtle));
+    temporary_turtles[temporary_count - 1] = (struct Turtle){0, 0, 1};
+    *current_turtles = temporary_turtles;
+    *num_turtles = temporary_count;
 }
 
 void move_turtle(struct Turtle* turtles, int num_turtles, int rows, int cols)
 {
     for (int i = 0; i < num_turtles; i++)
     {
-        //TODO:
         struct Turtle* turtle = &turtles[i];
         if (turtle->direction == 0) turtle->row -= 1;
         else if (turtle->direction == 1) turtle->column += 1;
