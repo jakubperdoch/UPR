@@ -16,7 +16,7 @@ void sentence_stats(struct Sentence* sentence)
 {
 }
 
-void sentence_style(char substring[])
+void sentence_style(char substring[], struct Sentence* sentence)
 {
     bool is_uppercase = true;
 
@@ -28,32 +28,29 @@ void sentence_style(char substring[])
             break;
         }
     }
-
-    if (is_uppercase)
+    for (int i = 0; substring[i] != '\0'; i++)
     {
-        for (int i = 0; substring[i] != '\0'; i++)
+        if (is_uppercase)
         {
             substring[i] = toupper(substring[i]);
         }
-    }
-    else
-    {
-        for (int i = 0; substring[i] != '\0'; i++)
+        else
         {
             substring[i] = tolower(substring[i]);
         }
-
-        substring[0] = toupper(substring[0]);
     }
+
+    if (is_uppercase) substring[0] = toupper(substring[0]);
 }
 
 void sentence_trim(char substring[])
 {
     for (int i = 0; substring[i] != '\0'; i++)
     {
-        int position = strcspn(substring, &substring[i]);
-
-        printf("%d", position);
+        if (substring[i] == substring[i + 1])
+        {
+            substring[i] = 8;
+        }
     }
 }
 
@@ -62,13 +59,8 @@ void sentence_normalize(struct Sentence* sentence)
     char* substr = strtok(sentence->normalized_sentence, " ");
     while (substr)
     {
-        sentence->spaces++;
-        sentence_style(substr);
-        printf("%s", substr);
-        if (strtok(NULL, " "))
-        {
-            printf(" ");
-        }
+        sentence_trim(substr);
+        sentence_style(substr, sentence);
         substr = strtok(NULL, " ");
     }
 }
@@ -96,7 +88,6 @@ int main(void)
     for (int i = 0; i < rows; i++)
     {
         sentence_normalize(&sentences[i]);
-        // printf("Sentence[%d] = %s\n", i, sentences[i].normalized_sentence);
     }
 
     free(sentences);
