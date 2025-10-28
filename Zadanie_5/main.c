@@ -10,54 +10,66 @@ struct Turtle
     int direction;
 };
 
-void array_print(char* array, int num_turtles, struct Turtle* turtles, const int rows, const int columns)
+void array_print(const char* array, const int rows, const int columns)
 {
     for (int row = 0; row < rows; row++)
     {
         for (int column = 0; column < columns; column++)
         {
-            char symbol = array[row * columns + column];
-            for (int index = 0; index < num_turtles; index++)
-            {
-                if (turtles[index].row == row && turtles[index].column == column)
-                {
-                    symbol = 'z';
-                    break;
-                }
-            }
-            printf("%c", symbol);
+            printf("%c", array[row * columns + column]);
         }
         printf("\n");
     }
 }
 
-void add_turtle(struct Turtle** current_turtles, int* num_turtles)
+void obstacles_generate(char* array, const int rows, const int columns)
+{
+    int array_size = rows * columns;
+    int num_obstacles = array_size / 5;
+    for (int i = 0; i < num_obstacles; i++)
+    {
+        int rand_idx = rand() % array_size;
+        if (array[rand_idx] == '#') { i--; }
+        else { array[rand_idx] = '#'; }
+    }
+}
+
+void turtle_add(struct Turtle** turtles, int* num_turtles)
 {
     int temporary_count = *num_turtles + 1;
-    struct Turtle* temporary_turtles = realloc(*current_turtles, temporary_count * sizeof(struct Turtle));
+    struct Turtle* temporary_turtles = realloc(*turtles, temporary_count * sizeof(struct Turtle));
     temporary_turtles[temporary_count - 1] = (struct Turtle){0, 0, 1};
-    *current_turtles = temporary_turtles;
+    *turtles = temporary_turtles;
     *num_turtles = temporary_count;
 }
 
-void move_turtle(struct Turtle* turtles, int num_turtles, int rows, int cols)
+void turtle_move(struct Turtle* turtles, const int num_turtles, const char* array, const int rows, const int cols)
 {
     for (int i = 0; i < num_turtles; i++)
     {
         struct Turtle* turtle = &turtles[i];
-        if (turtle->direction == 0) turtle->row -= 1;
-        else if (turtle->direction == 1) turtle->column += 1;
-        else if (turtle->direction == 2) turtle->row += 1;
-        else if (turtle->direction == 3) turtle->column -= 1;
+        int next_row = turtle->row;
+        int next_col = turtle->column;
 
-        if (turtle->column < 0) turtle->column = cols - 1;
-        if (turtle->column >= cols) turtle->column = 0;
-        if (turtle->row < 0) turtle->row = rows - 1;
-        if (turtle->row >= rows) turtle->row = 0;
+        if (turtle->direction == 0) next_row -= 1;
+        else if (turtle->direction == 1) next_col += 1;
+        else if (turtle->direction == 2) next_row += 1;
+        else if (turtle->direction == 3) next_col -= 1;
+
+        if (next_col < 0) next_col = cols - 1;
+        if (next_col >= cols) next_col = 0;
+        if (next_row < 0) next_row = rows - 1;
+        if (next_row >= rows) next_row = 0;
+
+        if (array[next_row * cols + next_col] != '#')
+        {
+            turtle->row = next_row;
+            turtle->column = next_col;
+        }
     }
 }
 
-void turn_turtle(struct Turtle* turtles, int num_turtles, char command)
+void turtle_turn(struct Turtle* turtles, const int num_turtles, const char command)
 {
     for (int i = 0; i < num_turtles; i++)
     {
@@ -66,12 +78,12 @@ void turn_turtle(struct Turtle* turtles, int num_turtles, char command)
     }
 }
 
-void draw_turtle(const struct Turtle* turtles, char* array, int num_turtles, int cols)
+void turtle_write(const struct Turtle* turtles, char* array, const int num_turtles, const int cols)
 {
     for (int i = 0; i < num_turtles; i++)
     {
         int index = turtles[i].row * cols + turtles[i].column;
-        array[index] = (array[index] == '0') ? '.' : '0';
+        array[index] = (array[index] == 'o') ? '.' : 'o';
     }
 }
 
@@ -84,15 +96,17 @@ int main(void)
     scanf("%d %d", &rows, &cols);
 
     char* array = malloc(rows * cols * sizeof(char));
-    add_turtle(&turtles, &num_turtles);
+    turtle_add(&turtles, &num_turtles);
 
     for (int i = 0; i < rows * cols; i++)
     {
         array[i] = '.';
     }
-
+    // obstacles_generate(array, rows, cols);
+    array[0] = '.';
 
     char command;
+
 
     while (true)
     {
@@ -100,27 +114,26 @@ int main(void)
 
         if (command == 'f' && num_turtles < 3)
         {
-            add_turtle(&turtles, &num_turtles);
+            turtle_add(&turtles, &num_turtles);
         }
         else if (command == 'm')
         {
-            move_turtle(turtles, num_turtles, rows, cols);
+            turtle_move(turtles, num_turtles, array, rows, cols);
         }
         else if (command == 'r' || command == 'l')
         {
-            turn_turtle(turtles, num_turtles, command);
+            turtle_turn(turtles, num_turtles, command);
         }
         else if (command == 'o')
         {
-            draw_turtle(turtles, array, num_turtles, cols);
+            turtle_write(turtles, array, num_turtles, cols);
         }
         else if (command == 'x')
         {
-            array_print(array, num_turtles, turtles, rows, cols);
+            array_print(array, rows, cols);
             break;
         }
     }
-
 
     free(array);
     free(turtles);
