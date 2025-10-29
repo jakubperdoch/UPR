@@ -12,9 +12,6 @@ struct Sentence
     char normalized_sentence[50];
 };
 
-void sentence_stats(struct Sentence* sentence)
-{
-}
 
 void sentence_style(char substring[], struct Sentence* sentence)
 {
