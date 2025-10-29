@@ -56,11 +56,22 @@ void sentence_trim(char substring[])
 
 void sentence_normalize(struct Sentence* sentence)
 {
-    char* substr = strtok(sentence->normalized_sentence, " ");
+    char temporary_sentence[50];
+    strcpy(temporary_sentence, sentence->normalized_sentence);
+
+    sentence->normalized_sentence[0] = '\0';
+
+    char* substr = strtok(temporary_sentence, " ");
     while (substr)
     {
         sentence_trim(substr);
         sentence_style(substr, sentence);
+
+        if (strlen(sentence->normalized_sentence) > 0)
+        {
+            strcat(sentence->normalized_sentence, " ");
+        }
+        strcat(sentence->normalized_sentence, substr);
         substr = strtok(NULL, " ");
     }
 }
@@ -88,6 +99,7 @@ int main(void)
     for (int i = 0; i < rows; i++)
     {
         sentence_normalize(&sentences[i]);
+        printf("%s\n", sentences[i].normalized_sentence);
     }
 
     free(sentences);
