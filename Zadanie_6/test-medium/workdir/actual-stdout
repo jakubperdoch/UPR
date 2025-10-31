@@ -58,11 +58,6 @@ lowercase: 36 -> 28
 uppercase: 8 -> 14
 spaces: 5 -> 4
 
-
-lowercase: 0 -> 0
-uppercase: 0 -> 0
-spaces: 0 -> 0
-
 Price Citizen
 lowercase: 7 -> 10
 uppercase: 5 -> 2
@@ -97,3 +92,8 @@ MOUTH
 lowercase: 5 -> 0
 uppercase: 0 -> 5
 spaces: 5 -> 0
+
+HIGH BAG Under Check
+lowercase: 13 -> 8
+uppercase: 4 -> 9
+spaces: 11 -> 3

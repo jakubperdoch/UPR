@@ -17,15 +17,41 @@ struct Sentence_
 {
     Stats stats;
     Stats stats_normalized;
-    char normalized_sentence[50];
+    char normalized_sentence[51];
 };
 
+int string_to_number(const char* strg)
+{
+    int number = 0, index = 0;;
+    while (strg[index] != '\0')
+    {
+        number = number * 10 + (strg[index] - '0');
+        index++;
+    }
+    return number;
+}
+
+int string_conversion(const char* strg)
+{
+    int integer = 0, index = 0;
+    while (strg[index] != '\0')
+    {
+        integer = integer * 10 + (strg[index] - '0');
+        index++;
+    }
+    return integer;
+}
+
+static void sentence_stats_zero(Stats* self)
+{
+    self->lower_case = self->upper_case = self->spaces = 0;
+}
 
 void sentence_stats(Sentence* self, const bool is_normalized)
 {
     for (int i = 0; self->normalized_sentence[i] != '\0'; i++)
     {
-        char c = self->normalized_sentence[i];
+        const char c = self->normalized_sentence[i];
         if (islower(c))
         {
             is_normalized ? self->stats_normalized.lower_case++ : self->stats.lower_case++;
@@ -41,7 +67,8 @@ void sentence_stats(Sentence* self, const bool is_normalized)
     }
 }
 
-void substring_style(char substring[], Sentence* self)
+
+void substring_style(char substring[])
 {
     bool is_uppercase = true;
 
@@ -57,15 +84,15 @@ void substring_style(char substring[], Sentence* self)
     {
         if (is_uppercase)
         {
-            substring[i] = toupper(substring[i]);
+            substring[i] = (char)toupper(substring[i]);
         }
         else
         {
-            substring[i] = tolower(substring[i]);
+            substring[i] = (char)tolower(substring[i]);
         }
     }
 
-    if (!is_uppercase) substring[0] = toupper(substring[0]);
+    if (!is_uppercase) substring[0] = (char)toupper(substring[0]);
 }
 
 void substring_trim(char substring[])
@@ -84,7 +111,7 @@ void substring_trim(char substring[])
 
 void sentence_normalize(Sentence* self)
 {
-    char temporary_sentence[50];
+    char temporary_sentence[51];
     strcpy(temporary_sentence, self->normalized_sentence);
 
     self->normalized_sentence[0] = '\0';
@@ -92,7 +119,7 @@ void sentence_normalize(Sentence* self)
     char* substr = strtok(temporary_sentence, " ");
     while (substr)
     {
-        substring_style(substr, self);
+        substring_style(substr);
         substring_trim(substr);
 
         if (strlen(self->normalized_sentence) > 0)
@@ -109,16 +136,17 @@ int main(void)
 {
     int rows = 0;
     Sentence* sentences = NULL;
-    char buff[50] = {};
+    char buff[51];
 
     fgets(buff, sizeof buff, stdin);
 
-    rows = atoi(buff);
+    buff[strcspn(buff, "\n")] = '\0';
+    rows = string_to_number(buff);
     sentences = malloc(sizeof(Sentence) * rows);
 
     for (int i = 0; i < rows; i++)
     {
-        char row[50] = {};
+        char row[51] = {};
         fgets(row, sizeof row, stdin);
         row[strcspn(row, "\n")] = '\0';
         strcpy(sentences[i].normalized_sentence, row);
@@ -126,6 +154,8 @@ int main(void)
 
     for (int i = 0; i < rows; i++)
     {
+        sentence_stats_zero(&sentences[i].stats);
+        sentence_stats_zero(&sentences[i].stats_normalized);
         sentence_stats(&sentences[i],false);
         sentence_normalize(&sentences[i]);
         sentence_stats(&sentences[i],true);
