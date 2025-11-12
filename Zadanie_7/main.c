@@ -18,9 +18,9 @@ void print_trades(int trades)
 {
     char str[20];
     sprintf(str, "%d", trades);
-    int len = strlen(str);
+    size_t len = strlen(str);
 
-    for (int i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
     {
         if (i > 0 && (len - i) % 3 == 0)
         {
@@ -33,7 +33,6 @@ void print_trades(int trades)
 Stock* stock_new(int index, char* name, float starting_price, float ending_price, int trades)
 {
     Stock* stock = malloc(sizeof(Stock));
-
     if (!stock) return NULL;
 
     stock->index = index;
@@ -50,8 +49,8 @@ Stock* stock_parse(char* line)
     char* id_str = strtok(line, ",");
     int index = atoi(id_str);
     char* name = strtok(NULL, ",");
-    float starting_price = atof(strtok(NULL, ","));
-    float ending_price = atof(strtok(NULL, ","));
+    float starting_price = (float)atof(strtok(NULL, ","));
+    float ending_price = (float)atof(strtok(NULL, ","));
     int trades = atoi(strtok(NULL, "\n"));
 
     Stock* stock = stock_new(index, name, starting_price, ending_price, trades);
