@@ -14,7 +14,7 @@ struct Stock_
     int trades;
 };
 
-void print_trades(int trades)
+void print_trades(const int trades)
 {
     char str[20];
     sprintf(str, "%d", trades);
@@ -30,7 +30,8 @@ void print_trades(int trades)
     }
 }
 
-Stock* stock_new(int index, char* name, float starting_price, float ending_price, int trades)
+Stock* stock_new(const int index, const char* name, const float starting_price, const float ending_price,
+                 const int trades)
 {
     Stock* stock = malloc(sizeof(Stock));
     if (!stock) return NULL;
@@ -57,7 +58,7 @@ Stock* stock_parse(char* line)
     return stock;
 }
 
-Stock* stock_find_highest(Stock* stocks, int rows, char* target_stock)
+Stock* stock_find_highest(Stock* stocks, const int rows, const char* target_stock)
 {
     Stock* highest_stock = NULL;
     int highest_trade = -1;
@@ -77,7 +78,7 @@ Stock* stock_find_highest(Stock* stocks, int rows, char* target_stock)
     return highest_stock;
 }
 
-void print_template(Stock* stocks, int rows, Stock* highest, char* target_stock)
+void print_template(const Stock* stocks, const int rows, const Stock* highest, char* target_stock)
 {
     printf("<html>\n");
     printf("<body>\n");
@@ -108,28 +109,28 @@ void print_template(Stock* stocks, int rows, Stock* highest, char* target_stock)
     for (int i = rows - 1; i >= 0; i--)
     {
         float result_price = stocks[i].ending_price - stocks[i].starting_price;
-        int correct_stock = (strcmp(stocks[i].name, target_stock) == 0);
+        int is_stock_correct = (strcmp(stocks[i].name, target_stock) == 0);
 
         printf("<tr>\n");
 
-        if (correct_stock) printf("\t<td><b>%d</b></td>\n", stocks[i].index);
+        if (is_stock_correct) printf("\t<td><b>%d</b></td>\n", stocks[i].index);
         else printf("\t<td>%d</td>\n", stocks[i].index);
 
-        if (correct_stock) printf("\t<td><b>%s</b></td>\n", stocks[i].name);
+        if (is_stock_correct) printf("\t<td><b>%s</b></td>\n", stocks[i].name);
         else printf("\t<td>%s</td>\n", stocks[i].name);
 
-        if (correct_stock) printf("\t<td><b>%.2f</b></td>\n", stocks[i].starting_price);
+        if (is_stock_correct) printf("\t<td><b>%.2f</b></td>\n", stocks[i].starting_price);
         else printf("\t<td>%.2f</td>\n", stocks[i].starting_price);
 
-        if (correct_stock) printf("\t<td><b>%.2f</b></td>\n", stocks[i].ending_price);
+        if (is_stock_correct) printf("\t<td><b>%.2f</b></td>\n", stocks[i].ending_price);
         else printf("\t<td>%.2f</td>\n", stocks[i].ending_price);
-        if (correct_stock) printf("\t<td><b>%.2f</b></td>\n", result_price);
+        if (is_stock_correct) printf("\t<td><b>%.2f</b></td>\n", result_price);
         else printf("\t<td>%.2f</td>\n", result_price);
 
-        if (correct_stock) printf("\t<td><b>");
+        if (is_stock_correct) printf("\t<td><b>");
         else printf("\t<td>");
         print_trades(stocks[i].trades);
-        if (correct_stock) printf("</b></td>\n");
+        if (is_stock_correct) printf("</b></td>\n");
         else printf("</td>\n");
 
         printf("</tr>\n");
@@ -142,7 +143,7 @@ void print_template(Stock* stocks, int rows, Stock* highest, char* target_stock)
 }
 
 
-int main(int argc, char* argv[])
+int main(const int argc, char* argv[])
 {
     int rows = 0;
     Stock* stocks = NULL;
@@ -169,7 +170,7 @@ int main(int argc, char* argv[])
         stock = NULL;
     }
 
-    Stock* highest_stock = stock_find_highest(stocks, rows, target_stock);
+    const Stock* highest_stock = stock_find_highest(stocks, rows, target_stock);
     print_template(stocks, rows, highest_stock, target_stock);
 
 
