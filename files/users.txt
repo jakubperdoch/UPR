@@ -1,0 +1,4 @@
+1;gau01;Jan;Gaura
+2;nov001;Petr;Novak
+3;stu0003;George;Student
+4;bon0007;James;Bond
