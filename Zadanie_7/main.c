@@ -5,6 +5,7 @@
 
 typedef struct Stock_ Stock;
 
+// Dakujem Pan prof.Gaura za inspiraciu z dnesnej hodiny (subory)
 struct Stock_
 {
     int index;
