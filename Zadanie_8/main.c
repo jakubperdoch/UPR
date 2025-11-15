@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-void recognize_input(int input_length, char* input[], char** export_path, char** import_path, char** needle_name,
+void recognize_input(const int input_length, char* input[], char** export_path, char** import_path, char** needle_name,
                      bool* ignores_upper_case)
 {
     for (int i = 1; i < input_length; i++)
     {
         if (strcmp(input[i], "-i") == 0)
         {
-            if (*ignores_upper_case)
+            if (*ignores_upper_case != false)
             {
                 printf("Parameter -i provided multiple times\n");
                 exit(1);
@@ -19,8 +19,12 @@ void recognize_input(int input_length, char* input[], char** export_path, char**
             if (i + 1 < input_length)
             {
                 *ignores_upper_case = true;
-                *needle_name = strdup(input[i + 1]);
-                i++;
+
+                if (strcmp(input[i + 1], "-i") != 0)
+                {
+                    *needle_name = strdup(input[i + 1]);
+                    i++;
+                }
             }
         }
         else if (strcmp(input[i], "-o") == 0)
@@ -31,13 +35,17 @@ void recognize_input(int input_length, char* input[], char** export_path, char**
                 exit(1);
             }
 
-            *export_path = strdup(input[i + 1]);
+            if (i + 1 < input_length)
+            {
+                *export_path = strdup(input[i + 1]);
+                i++;
+            }
+
             if (*export_path == NULL)
             {
                 printf("Missing output path\n");
                 exit(1);
             }
-            i++;
         }
         else
         {
@@ -48,6 +56,11 @@ void recognize_input(int input_length, char* input[], char** export_path, char**
             else if (*needle_name == NULL)
             {
                 *needle_name = strdup(input[i]);
+            }
+            else if (*needle_name != NULL)
+            {
+                printf("Too many parameters provided\n");
+                exit(1);
             }
         }
     }
