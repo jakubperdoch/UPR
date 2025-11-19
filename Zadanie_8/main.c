@@ -12,55 +12,89 @@ typedef struct
     bool ignore_case;
 } SearchConfig;
 
-void input_recognize(const int input_length, char* input[], char** export_path, char** import_path, char** needle_name,
-                     bool* ignore_upper_case)
+void init_config(SearchConfig* config)
 {
-    for (int i = 1; i < input_length; i++)
+    config->import_path = NULL;
+    config->export_path = NULL;
+    config->needle = NULL;
+    config->ignore_case = false;
+}
+
+void flush()
+{
+    fflush(stdout);
+}
+
+void set_white_color()
+{
+    printf("\x1b[47;1m");
+    flush();
+}
+
+void set_red_color()
+{
+    printf("\x1b[41;1m");
+    flush();
+}
+
+void to_lowercase(char* str)
+{
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        str[i] = tolower((unsigned char)str[i]);
+    }
+}
+
+void parse_arguments(int argc, char* argv[], SearchConfig* config)
+{
+    init_config(config);
+
+    for (int i = 1; i < argc; i++)
     {
         // if input contains -i (ignoring capital letters)
-        if (strcmp(input[i], "-i") == 0)
+        if (strcmp(argv[i], "-i") == 0)
         {
-            if (*ignore_upper_case != false)
+            if (config->ignore_case != false)
             {
                 printf("Parameter -i provided multiple times\n");
                 exit(1);
             }
 
-            *ignore_upper_case = true;
+            config->ignore_case = true;
         }
         // if input contains -o (export path)
-        else if (strcmp(input[i], "-o") == 0)
+        else if (strcmp(argv[i], "-o") == 0)
         {
-            if (*export_path != NULL)
+            if (config->export_path != NULL)
             {
                 printf("Parameter -o provided multiple times\n");
                 exit(1);
             }
 
-            if (i + 1 < input_length)
+            if (i + 1 < argc)
             {
-                *export_path = strdup(input[i + 1]);
+                config->export_path = strdup(argv[i + 1]);
                 i++;
             }
 
-            if (*export_path == NULL)
+            if (config->export_path == NULL)
             {
                 printf("Missing output path\n");
                 exit(1);
             }
         }
-        // input must contains import_path & needle_name
+        // input must contain import_path & needle
         else
         {
-            if (*import_path == NULL)
+            if (config->import_path == NULL)
             {
-                *import_path = strdup(input[i]);
+                config->import_path = strdup(argv[i]);
             }
-            else if (*needle_name == NULL)
+            else if (config->needle == NULL)
             {
-                *needle_name = strdup(input[i]);
+                config->needle = strdup(argv[i]);
             }
-            else if (*needle_name != NULL)
+            else
             {
                 printf("Too many parameters provided\n");
                 exit(1);
@@ -69,19 +103,19 @@ void input_recognize(const int input_length, char* input[], char** export_path, 
     }
 
     // error messages when required values are not presented
-    if (*import_path == NULL)
+    if (config->import_path == NULL)
     {
         printf("Input path not provided\n");
         exit(1);
     }
-    if (*needle_name == NULL)
+    if (config->needle == NULL)
     {
         printf("Needle not provided\n");
         exit(1);
     }
 }
 
-void remove_line(char* line)
+void remove_newline(char* line)
 {
     const int len = strlen(line);
     if (line[len - 1] == '\n')
@@ -90,7 +124,49 @@ void remove_line(char* line)
     }
 }
 
-void input_export(char* line, char** export_path, FILE* export_file)
+//BONUS
+void highlight_line(const char* line, const char* needle)
+{
+    bool match = false;
+    const int needle_len = strlen(needle);
+
+
+    for (int i = 0; line[i] != '\0'; i++)
+    {
+        for (int j = 0; needle[j] != '\0'; j++)
+        {
+            if (line[i + j] == needle[j])
+            {
+                match = true;
+            }
+            else
+            {
+                match = false;
+                break;
+            }
+        }
+
+        if (match)
+        {
+            set_red_color();
+            for (int k = 0; k < needle_len; k++)
+            {
+                printf("%c", line[i + k]);
+            }
+            set_white_color();
+            i += needle_len - 1;
+        }
+        else
+        {
+            set_white_color();
+            printf("%c", line[i]);
+        }
+    }
+
+    printf("\n");
+}
+
+void output_line(char* line, char** export_path, FILE* export_file, const char* needle)
 {
     if (*export_path != NULL)
     {
@@ -98,37 +174,30 @@ void input_export(char* line, char** export_path, FILE* export_file)
     }
     else
     {
-        printf("%s\n", line);
+        highlight_line(line, needle);
     }
 }
 
-void input_search(char* needle_name, char* line, const bool ignore_upper_case, FILE* export_file,
-                  char** export_path)
+void search_and_output(FILE* output, SearchConfig* config, char* line)
 {
-    if (ignore_upper_case == false)
+    if (config->ignore_case == false)
     {
-        if (strstr(line, needle_name) != NULL)
+        if (strstr(line, config->needle) != NULL)
         {
-            input_export(line, export_path, export_file);
+            output_line(line, &config->export_path, output, config->needle);
         }
     }
     else
     {
-        char* needle_name_lower = strdup(needle_name);
-        for (int i = 0; needle_name_lower[i] != '\0'; i++)
-        {
-            needle_name_lower[i] = tolower(needle_name_lower[i]);
-        }
-
+        char* needle_lower = strdup(config->needle);
         char* line_lower = strdup(line);
-        for (int i = 0; line_lower[i] != '\0'; i++)
-        {
-            line_lower[i] = tolower(line_lower[i]);
-        }
 
-        if (strstr(line_lower, needle_name_lower) != NULL)
+        to_lowercase(needle_lower);
+        to_lowercase(line_lower);
+
+        if (strstr(line_lower, needle_lower) != NULL)
         {
-            input_export(line, export_path, export_file);
+            output_line(line, &config->export_path, output, needle_lower);
         }
     }
 }
@@ -136,36 +205,32 @@ void input_search(char* needle_name, char* line, const bool ignore_upper_case, F
 
 int main(const int argc, char* argv[])
 {
-    char* import_path = NULL;
-    char* export_path = NULL;
-    char* needle_name = NULL;
-    bool ignore_upper_case = false;
+    SearchConfig config;
+    FILE* input_file = NULL;
+    FILE* output_file = NULL;
     char buffer[100] = {};
-    FILE* import_file = NULL;
-    FILE* export_file = NULL;
 
+    parse_arguments(argc, argv, &config);
 
-    input_recognize(argc, argv, &export_path, &import_path, &needle_name, &ignore_upper_case);
-
-    if (import_path != NULL)
+    if (config.import_path != NULL)
     {
-        import_file = fopen(import_path, "r");
+        input_file = fopen(config.import_path, "r");
     }
-    if (export_path != NULL)
+    if (config.export_path != NULL)
     {
-        export_file = fopen(export_path, "w");
+        output_file = fopen(config.export_path, "w");
     }
 
     while (true)
     {
-        if (fgets(buffer, sizeof buffer, import_file))
+        if (fgets(buffer, sizeof buffer, input_file))
         {
-            remove_line(buffer);
-            input_search(needle_name, buffer, ignore_upper_case, export_file, &export_path);
+            remove_newline(buffer);
+            search_and_output(output_file, &config, buffer);
         }
         else
         {
-            if (feof(import_file))
+            if (feof(input_file))
             {
                 break;
             }
@@ -173,13 +238,15 @@ int main(const int argc, char* argv[])
     }
 
     // Section for closing all opened files (import/export)
-    fclose(import_file);
-    fclose(export_file);
+    fclose(input_file);
+    if (output_file != NULL)
+    {
+        fclose(output_file);
+    }
 
-    free(needle_name);
-    free(export_path);
-    free(import_path);
-
+    free(config.import_path);
+    free(config.export_path);
+    free(config.needle);
 
     return 0;
 }
