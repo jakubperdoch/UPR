@@ -25,18 +25,21 @@ void flush()
     fflush(stdout);
 }
 
+// function for reseting ansi color
 void reset_color()
 {
     printf("\x1b[0m");
     flush();
 }
 
+// function for applying ansi color
 void set_red_color()
 {
     printf("\x1b[41;1m");
     flush();
 }
 
+// helper function for replacing all capital letters with their lowercase version
 void to_lowercase(char* str)
 {
     for (int i = 0; str[i] != '\0'; i++)
@@ -115,6 +118,7 @@ void parse_arguments(int argc, char* argv[], SearchConfig* config)
     }
 }
 
+// removing \n from the end of line and replacing with \0
 void remove_newline(char* line)
 {
     const int len = strlen(line);
@@ -245,6 +249,7 @@ int main(const int argc, char* argv[])
         fclose(output_file);
     }
 
+    // Section for freeing memory allocated for config
     free(config.import_path);
     free(config.export_path);
     free(config.needle);
