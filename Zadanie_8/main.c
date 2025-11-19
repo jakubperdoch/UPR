@@ -25,9 +25,9 @@ void flush()
     fflush(stdout);
 }
 
-void set_white_color()
+void reset_color()
 {
-    printf("\x1b[47;1m");
+    printf("\x1b[0m");
     flush();
 }
 
@@ -153,12 +153,12 @@ void highlight_line(const char* line, const char* needle)
             {
                 printf("%c", line[i + k]);
             }
-            set_white_color();
+            reset_color();
             i += needle_len - 1;
         }
         else
         {
-            set_white_color();
+            reset_color();
             printf("%c", line[i]);
         }
     }
