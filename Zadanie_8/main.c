@@ -174,7 +174,8 @@ void output_line(char* line, char** export_path, FILE* export_file, const char* 
     }
     else
     {
-        highlight_line(line, needle);
+        // highlight_line(line, needle);
+        printf("%s\n", line);
     }
 }
 
