@@ -69,6 +69,13 @@ Pixel* load_pixels(const TGAHeader header, FILE* file)
 Image load_image(const char* file_name)
 {
     FILE* file = fopen(file_name, "rb");
+
+    if (file == NULL)
+    {
+        printf("Could not load image\n");
+        exit(1);
+    }
+
     TGAHeader header;
     fread(&header, sizeof(TGAHeader), 1, file);
     Pixel* pixels = load_pixels(header, file);
@@ -79,33 +86,28 @@ Image load_image(const char* file_name)
     return image;
 }
 
-void convert_text(int offset_x, const int offset_y, const Image image, char* row, const int row_length,
+void convert_text(int offset_x, const int offset_y, const Image image, const char* row, const int row_length,
                   const Image* letters)
 {
     for (int i = 0; i < row_length; ++i)
     {
         if (row[i] == ' ')
         {
-            offset_x += 7;
+            offset_x += 10;
             continue;
         }
 
-        int index = row[i] - 'A';
-        Image letter_image = letters[index];
+        const int index = row[i] - 'A';
+        const Image letter_image = letters[index];
 
         for (int y = 0; y < letter_image.height; ++y)
         {
             for (int x = 0; x < letter_image.width; ++x)
             {
-                int target_x = offset_x + x;
-                int target_y = offset_y + y;
+                const int target_x = offset_x + x;
+                const int target_y = offset_y + y;
 
-                if (target_x >= image.width || target_y >= image.height || target_x < 0 || target_y < 0)
-                {
-                    continue;
-                }
-
-                Pixel* letter_pixel = letter_image.pixels + (y * letter_image.width + x);
+                const Pixel* letter_pixel = letter_image.pixels + (y * letter_image.width + x);
 
                 if (letter_pixel->r == 255 && letter_pixel->g == 255 && letter_pixel->b == 255)
                 {
@@ -121,6 +123,51 @@ void convert_text(int offset_x, const int offset_y, const Image image, char* row
     }
 }
 
+void print_image(const int overall_lines, const Image* letters, const Image image, const int top_lines)
+{
+    char row[100];
+
+    for (int line = 0; line < overall_lines; ++line)
+    {
+        fgets(row, sizeof row, stdin);
+        row[strcspn(row, "\n")] = '\0';
+
+        int row_length = strlen(row);
+        int row_width = 0;
+
+        for (int i = 0; i < row_length; ++i)
+        {
+            row[i] = toupper(row[i]);
+        }
+
+        for (int i = 0; i < row_length; ++i)
+        {
+            if (row[i] == ' ')
+            {
+                row_width += 7;
+            }
+            else if (row[i] >= 'A' && row[i] <= 'Z')
+            {
+                const int index = row[i] - 'A';
+                row_width += letters[index].width;
+            }
+        }
+
+        const int offset_x = (image.width - row_width) / 2;
+
+        if (line >= top_lines)
+        {
+            const int margin = image.height - ((overall_lines - line) * 40) - 20;
+            convert_text(offset_x, margin, image, row, row_length, letters);
+        }
+        else
+        {
+            const int margin = (line * 40) + 20;
+            convert_text(offset_x, margin, image, row, row_length, letters);
+        }
+    }
+}
+
 int main(const int argc, char* argv[])
 {
     if (argc != 4)
@@ -132,23 +179,18 @@ int main(const int argc, char* argv[])
     const char* input_file_name = argv[1];
     const char* output_file_name = argv[2];
     const char* font_path = argv[3];
+    char row[100];
 
-    Image letters[26];
-    const Image image = load_image(input_file_name);
-    FILE* original_file = fopen(input_file_name, "rb");
-    FILE* output_file = fopen(output_file_name, "wb");
-
-    if (original_file == NULL)
-    {
-        printf("Could not load image\n");
-        exit(1);
-    }
     if (font_path == NULL)
     {
         exit(1);
     }
 
-    char row[101];
+    Image letters[26];
+    const Image image = load_image(input_file_name);
+    FILE* output_file = fopen(output_file_name, "wb");
+
+
     fgets(row, sizeof row, stdin);
     const int top_lines = atoi(strtok(row, " "));
     const int bottom_lines = atoi(strtok(NULL, " "));
@@ -156,54 +198,22 @@ int main(const int argc, char* argv[])
 
     for (int letter = 0; letter < 26; ++letter)
     {
-        char letter_path[101];
+        char letter_path[100];
         sprintf(letter_path, "%s/%c.tga", font_path, 'A' + letter);
         letters[letter] = load_image(letter_path);
     }
 
-
-    for (int line = 0; line < overall_lines; ++line)
-    {
-        fgets(row, sizeof row, stdin);
-        row[strcspn(row, "\n")] = '\0';
-        int row_length = strlen(row);
-        for (int i = 0; i < row_length; ++i)
-        {
-            row[i] = toupper(row[i]);
-        }
-        int text_width = 0;
-        for (int i = 0; i < row_length; ++i)
-        {
-            if (row[i] == ' ')
-            {
-                text_width += 7;
-            }
-            else if (row[i] >= 'A' && row[i] <= 'Z')
-            {
-                int index = row[i] - 'A';
-                text_width += letters[index].width;
-            }
-        }
-
-        int offset_x = (image.width - text_width) / 2;
-
-        if (line >= top_lines)
-        {
-            const int offset_y = image.height - ((overall_lines - line) * 34) - 10;
-            convert_text(offset_x, offset_y, image, row, row_length, letters);
-        }
-        else
-        {
-            const int offset_y = (line * 34) + 10;
-            convert_text(offset_x, offset_y, image, row, row_length, letters);
-        }
-    }
+    print_image(overall_lines, letters, image, top_lines);
 
     fwrite(&image.header, sizeof(TGAHeader), 1, output_file);
     fwrite(image.pixels, sizeof(Pixel), image.size, output_file);
 
-    fclose(original_file);
     fclose(output_file);
+    free(image.pixels);
+    for (int letter = 0; letter < 26; ++letter)
+    {
+        free(letters[letter].pixels);
+    }
 
     return 0;
 }
