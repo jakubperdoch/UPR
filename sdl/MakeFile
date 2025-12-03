@@ -1,0 +1,13 @@
+TARGET=main
+
+all: array.o main.o
+	gcc array.o main.o -o $(TARGET)
+
+array.o: array.c
+	gcc -c array.c -o array.o
+
+main.o: main.c array.h
+	gcc -c main.c -o main.o
+
+clean:
+	rm -f *.o $(TARGET)
