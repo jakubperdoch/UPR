@@ -31,6 +31,7 @@ void addRecord(Semester* semester, char* data)
     record->score = atoi(strtok(NULL, ";"));
     semester->records = realloc(semester->records, (semester->count + 1) * sizeof(Record));
     semester->records[semester->count] = *record;
+    semester->count++;
     free(record);
 }
 
@@ -49,7 +50,6 @@ void checkSemester(Semester** semesters, int* count, int year, char* data)
         if ((*semesters)[i].year == year)
         {
             addRecord(&(*semesters)[i], data);
-            (*semesters)[i].count++;
             return;
         }
     }
@@ -65,8 +65,7 @@ void checkSemester(Semester** semesters, int* count, int year, char* data)
 
     (*semesters)[*count].year = year;
     (*semesters)[*count].records = NULL;
-    (*semesters)[*count].count = 1;
-
+    (*semesters)[*count].count = 0;
     addRecord(&(*semesters)[*count], data);
     (*count)++;
 }
