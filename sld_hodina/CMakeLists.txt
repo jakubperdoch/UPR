@@ -6,6 +6,7 @@ pkg_check_modules(SDL2 REQUIRED sdl2)
 
 add_executable(myapp
         atoms.c
-        sdl_playground.c)
+        sdl_playground.c
+        array.c)
 target_include_directories(myapp PRIVATE ${SDL2_INCLUDE_DIRS})
 target_link_libraries(myapp ${SDL2_LIBRARIES})
