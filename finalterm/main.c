@@ -81,7 +81,6 @@ int main(const int argc, char* argv[])
 
     Semester* semesters = NULL;
     int semCount = 0;
-    int negativePoints = 0;
     char buff[100];
     int rows = atoi(argv[1]);
 
