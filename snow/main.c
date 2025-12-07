@@ -17,10 +17,8 @@ typedef struct
     int size;
 } SnowFlake;
 
-
 int main()
 {
-    SDL_Renderer* renderer = NULL;
     SDL_Context context = sdl_context_init("SnowFlakes", WINDOW_WIDTH, WINDOW_HEIGHT);
     dynarray array;
 
@@ -98,7 +96,6 @@ int main()
     SDL_DestroyTexture(texture);
     dynarray_free(&array);
     sdl_context_free(&context);
-
 
     return 0;
 }
